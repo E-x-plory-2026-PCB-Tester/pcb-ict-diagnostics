@@ -1,0 +1,4 @@
+__pycache__/
+*.pyc
+wzorzec.json
+pomiary_raport.csv

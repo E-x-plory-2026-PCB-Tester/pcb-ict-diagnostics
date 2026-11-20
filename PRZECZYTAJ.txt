@@ -1,0 +1,171 @@
+=========================================================
+  ICT-SCAN PRO — Tester Płytek (Golden Sample)
+  Windows / macOS / Linux
+=========================================================
+
+---------------------------------------------------------
+  NAJPROSTSZY SPOSÓB — KLIKNIJ AKTYWATOR
+---------------------------------------------------------
+
+W folderze jest gotowy aktywator. Nie musisz nic wpisywać
+w konsoli ani znać żadnych komend.
+
+  URUCHOM_WINDOWS.bat    <- Windows      (kliknij dwa razy)
+  URUCHOM.sh             <- macOS / Linux
+
+Kliknij go dwa razy. On sam zrobi wszystko po kolei:
+
+  1. znajdzie Pythona na komputerze,
+  2. sprawdzi, czy są potrzebne biblioteki — jeśli nie ma,
+     doinstaluje je sam,
+  3. sprawdzi, czy w folderze leżą potrzebne pliki,
+  4. uruchomi program.
+
+Pierwsze uruchomienie może potrwać około minuty, bo instaluje
+biblioteki. Każde następne — kilka sekund.
+
+Jeśli aktywator pokaże błąd, napisze dokładnie, czego brakuje.
+Wtedy przejdź do sekcji "JEŚLI COŚ NIE DZIAŁA" na dole.
+
+
+---------------------------------------------------------
+  CO JEST W FOLDERZE
+---------------------------------------------------------
+  testuj_plytke.py       aplikacja główna (ICT-SCAN PRO)
+  zdjecie_plytki.png     zdjęcie badanej płytki (widok z góry)
+  lista_elementow.json   mapa elementów, igieł i pozycji (x, y)
+  URUCHOM_WINDOWS.bat    aktywator dla Windows
+  URUCHOM.sh             aktywator dla macOS i Linuksa
+  PRZECZYTAJ.txt         ten plik
+
+Program sam dopisze dwa kolejne pliki:
+
+  wzorzec.json           zapisany wzorzec (wczytuje się sam przy starcie)
+  pomiary_raport.csv     log wszystkich testów (pod Excel/wykresy)
+
+
+---------------------------------------------------------
+  JAK TESTOWAĆ (TRYB DEMO, BEZ SPRZĘTU)
+---------------------------------------------------------
+
+Wszystkie główne przyciski są na GÓRNYM PASKU:
+
+1. Kliknij [★ Zapisz wzorzec]
+   -> zapisuje bazę ze sprawnej płytki do pliku wzorzec.json
+   -> gdyby w folderze był stary wzorzec bez nowych elementów
+      (np. bez U1), kliknij ten przycisk raz, aby go odświeżyć
+
+2. Kliknij [▶ Testuj płytkę]
+   -> przelatuje animacja skanu, wynik w tabeli i na zdjęciu (PASS)
+
+3. Na górnym pasku zmień [SYMULACJA] np. na "odwrocona_dioda"
+   albo "zwarcie" i znów kliknij [▶ Testuj płytkę]
+   -> celownik na wadliwym elemencie, powód błędu,
+      pasek historii (#1, #2, #3...)
+
+4. Dodatkowe funkcje w oknie:
+   - kółko myszy na płytce = zoom
+   - przeciągnięcie myszką = przesuwanie płytki
+   - pionowy suwak między panelami = szerokość tabeli
+   - [A− / A+] = wielkość tekstu w tabeli
+   - [⛶ Pełny] = tabela na cały ekran
+   - [⚙ Kalibruj] = tarowanie oporu kabli
+     (na żywo: zdejmij płytkę, zewrzyj dwie igły przewodem)
+
+
+---------------------------------------------------------
+  PODŁĄCZENIE PRAWDZIWEGO TESTERA (ESP32)
+---------------------------------------------------------
+
+Na górnym pasku zmień [ŹRÓDŁO] z "DEMO (Symulator)"
+na port COM testera.
+
+Tester powinien przyjmować komendę "SCAN\n" i zwracać JSON:
+
+  {"board_id": "test", "scan_ms": 380,
+   "readings": [{"a": 0, "b": 1, "mv": 410}, ...]}
+
+
+---------------------------------------------------------
+  JEŚLI WOLISZ RĘCZNIE (albo dwuklik nie działa)
+---------------------------------------------------------
+
+Aktywator to tylko skrót — wpisuje te same komendy za Ciebie.
+Otwórz konsolę:
+
+  Windows:  Win + R, wpisz cmd, Enter
+  macOS:    Terminal
+  Linux:    Terminal
+
+WINDOWS:
+
+    cd %USERPROFILE%\Desktop\TesterPlytek
+    pip install customtkinter pillow pyserial
+    python testuj_plytke.py
+
+  Jeśli "python" nie jest rozpoznawane:  py testuj_plytke.py
+
+macOS:
+
+    cd ~/Desktop/TesterPlytek
+    pip3 install customtkinter pillow pyserial
+    python3 testuj_plytke.py
+
+  Jeśli dwuklik na URUCHOM.sh nic nie robi:
+
+    cd ~/Desktop/TesterPlytek
+    bash URUCHOM.sh
+
+LINUX:
+
+    cd ~/Pulpit/TesterPlytek
+    pip3 install customtkinter pillow pyserial
+    python3 testuj_plytke.py
+
+  Jeśli dwuklik otwiera plik w edytorze zamiast uruchamiać:
+
+    cd ~/Pulpit/TesterPlytek
+    bash URUCHOM.sh
+
+
+---------------------------------------------------------
+  JEŚLI COŚ NIE DZIAŁA
+---------------------------------------------------------
+
+Aktywator nic nie robi po dwukliku (Windows)
+      -> kliknij prawym -> "Uruchom jako administrator"
+      -> albo otwórz Wiersz polecenia i wpisz:
+         URUCHOM_WINDOWS.bat
+
+"ModuleNotFoundError: customtkinter"
+      -> nie zainstalowano bibliotek. Aktywator robi to sam,
+         ale ręcznie wpisz:
+         pip install customtkinter pillow pyserial
+         (na macOS/Linux: pip3 install customtkinter pillow pyserial)
+
+"python nie jest rozpoznawane"
+      -> wpisz  py testuj_plytke.py   (Windows)
+      -> albo  python3 testuj_plytke.py  (macOS/Linux)
+      -> albo zainstaluj Pythona z python.org, zaznaczając
+         "Add Python to PATH" podczas instalacji
+
+Okno się nie otwiera na Linuksie
+      -> sudo apt install python3-tk
+
+"BRAKUJE PLIKÓW" w konsoli
+      -> zdjecie_plytki.png i lista_elementow.json muszą leżeć
+         w tym samym folderze co testuj_plytke.py
+
+Tabela pusta / "BRAK DANYCH" przy każdym elemencie
+      -> kliknij [★ Zapisz wzorzec] — wzorzec nie został jeszcze
+         zapisany albo pochodzi ze starszej listy elementów
+
+"Stary plik wzorzec.json nie pasuje..."
+      -> lista elementów się zmieniła (np. doszedł U1).
+         Kliknij raz [★ Zapisz wzorzec], potem testuj.
+
+Puste pliki o dziwnych nazwach (np. PROG_ZWARCIA_OHM, TOLERANCJA)
+      -> to pozostałość po wklejeniu fragmentu kodu z ">" do konsoli.
+         ">" tworzy plik o nazwie tego, co za nim. Można je usunąć.
+
+=========================================================
