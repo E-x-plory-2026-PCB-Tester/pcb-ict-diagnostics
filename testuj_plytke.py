@@ -1,11 +1,3 @@
-"""
-testuj_plytke.py  —  ICT-SCAN PRO (Serial Monitor JSON + Konfigurator Pinów + Zoom/Pan PCB)
-
-WYMAGANE PLIKI W TYM SAMYM FOLDERZE:
-    - zdjecie_plytki.png
-    - lista_elementow.json
-"""
-
 import csv
 import datetime
 import json
@@ -761,6 +753,8 @@ class Aplikacja(ctk.CTk):
         self.canvas.pack(fill="both", expand=True, padx=10, pady=(2, 10))
         self.canvas.bind("<Configure>", lambda _e: self._odswiez_canvas())
         self.canvas.bind("<MouseWheel>", self._na_scroll_myszy)
+        self.canvas.bind("<Button-4>", lambda _e: self._zmien_zoom(+0.10))
+        self.canvas.bind("<Button-5>", lambda _e: self._zmien_zoom(-0.10))
         self.canvas.bind("<ButtonPress-1>", self._start_przesuwania)
         self.canvas.bind("<B1-Motion>", self._przesuwaj_pcb)
         self.canvas.bind("<ButtonRelease-1>", lambda _e: self.canvas.configure(cursor=""))
@@ -848,7 +842,6 @@ class Aplikacja(ctk.CTk):
         self.tabela = ctk.CTkScrollableFrame(karta_tab, fg_color="transparent")
         self.tabela.pack(fill="both", expand=True, padx=6, pady=(0, 8))
 
-        # --- SERIAL MONITOR & DZIENNIK ZDARZEŃ ---
         karta_log = ctk.CTkFrame(self.prawa, height=168, fg_color="#090C11", corner_radius=10,
                                  border_width=1, border_color=BORDER)
         karta_log.pack(fill="x")
