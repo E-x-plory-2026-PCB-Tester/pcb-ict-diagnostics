@@ -5,7 +5,7 @@
 cd "$(dirname "$0")" || exit 1
 
 echo "======================================"
-echo "  TESTER PLYTEK - uruchamianie"
+echo "  ICT-SCAN PRO - uruchamianie"
 echo "======================================"
 echo
 
@@ -19,8 +19,8 @@ else
     echo
     echo "Zainstaluj go:"
     echo "  macOS:  https://www.python.org/downloads/"
-    echo "  Ubuntu: sudo apt install python3 python3-pip python3-tk"
-    echo "  Fedora: sudo dnf install python3 python3-pip python3-tkinter"
+    echo "  Ubuntu: sudo apt install python3 python3-pip python3-tk python3-pil.imagetk"
+    echo "  Fedora: sudo dnf install python3 python3-pip python3-tkinter python3-pillow-tk"
     echo
     read -r -p "Nacisnij Enter, zeby zamknac..."
     exit 1
@@ -29,31 +29,29 @@ fi
 echo "Python: $($PY --version 2>&1)"
 echo
 
-# 2. sprawdz biblioteki, w razie braku zainstaluj
-if ! $PY -c "import customtkinter, PIL" >/dev/null 2>&1; then
+# 2. sprawdz tkinter i ImageTk (na Linuksie osobne pakiety systemowe)
+if ! $PY -c "import tkinter, PIL.ImageTk" >/dev/null 2>&1; then
+    echo "UWAGA: brak tkinter lub PIL.ImageTk."
+    echo "Jesli program nie wstanie, doinstaluj pakiety systemowe:"
+    echo "  Ubuntu/Debian: sudo apt install python3-tk python3-pil.imagetk"
+    echo "  Fedora:        sudo dnf install python3-tkinter python3-pillow-tk"
+    echo "  Arch:          sudo pacman -S tk"
+    echo
+fi
+
+# 3. sprawdz biblioteki Pythona, w razie braku zainstaluj
+if ! $PY -c "import customtkinter, PIL, serial" >/dev/null 2>&1; then
     echo "Brakuje bibliotek - instaluje (tylko raz, moze potrwac minute)..."
     echo
     $PY -m pip install --user customtkinter pillow pyserial || {
         echo
         echo "Nie udalo sie zainstalowac. Sprobuj recznie:"
-        echo "  $PY -m pip install customtkinter pillow pyserial"
+        echo "  $PY -m pip install -r requirements.txt"
         echo
         read -r -p "Nacisnij Enter, zeby zamknac..."
         exit 1
     }
     echo
-fi
-
-# 3. sprawdz tkinter (na Linuksie czesto brakuje)
-if ! $PY -c "import tkinter" >/dev/null 2>&1; then
-    echo "BLAD: brak tkinter (czesc Pythona, ale w Linuksie osobny pakiet)."
-    echo
-    echo "  Ubuntu/Debian: sudo apt install python3-tk"
-    echo "  Fedora:        sudo dnf install python3-tkinter"
-    echo "  Arch:          sudo pacman -S tk"
-    echo
-    read -r -p "Nacisnij Enter, zeby zamknac..."
-    exit 1
 fi
 
 # 4. sprawdz pliki
@@ -72,7 +70,6 @@ echo "Uruchamiam program..."
 echo
 $PY testuj_plytke.py
 
-# 6. nie zamykaj okna jesli byl blad
 if [ $? -ne 0 ]; then
     echo
     echo "Program zakonczyl sie bledem - skopiuj tekst powyzej."

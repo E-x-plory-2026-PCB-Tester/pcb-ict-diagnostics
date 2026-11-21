@@ -1,19 +1,19 @@
 @echo off
 chcp 65001 >nul
 cd /d "%~dp0"
-title Tester Plytek
+title ICT-SCAN PRO
 
 echo ======================================
-echo   TESTER PLYTEK - uruchamianie
+echo   ICT-SCAN PRO - uruchamianie
 echo ======================================
 echo.
 
-REM 1. znajdz Pythona
-where python >nul 2>nul
+REM 1. znajdz dzialajacego Pythona (omija falszywy alias Microsoft Store)
+python -c "import sys" >nul 2>nul
 if %errorlevel%==0 (
     set PY=python
 ) else (
-    where py >nul 2>nul
+    py -c "import sys" >nul 2>nul
     if %errorlevel%==0 (
         set PY=py
     ) else (
@@ -30,8 +30,8 @@ if %errorlevel%==0 (
 for /f "delims=" %%v in ('%PY% --version 2^>^&1') do echo Python: %%v
 echo.
 
-REM 2. sprawdz biblioteki
-%PY% -c "import customtkinter, PIL" >nul 2>nul
+REM 2. sprawdz wszystkie wymagane biblioteki (w tym pyserial)
+%PY% -c "import customtkinter, PIL, serial" >nul 2>nul
 if not %errorlevel%==0 (
     echo Brakuje bibliotek - instaluje ^(tylko raz, moze potrwac minute^)...
     echo.
@@ -39,7 +39,7 @@ if not %errorlevel%==0 (
     if not %errorlevel%==0 (
         echo.
         echo Nie udalo sie zainstalowac. Sprobuj recznie:
-        echo   %PY% -m pip install customtkinter pillow pyserial
+        echo   %PY% -m pip install -r requirements.txt
         echo.
         pause
         exit /b 1
