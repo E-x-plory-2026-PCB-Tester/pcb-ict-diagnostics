@@ -34,6 +34,7 @@ Wtedy przejdź do sekcji "JEŚLI COŚ NIE DZIAŁA" na dole.
   testuj_plytke.py       aplikacja główna (ICT-SCAN PRO)
   zdjecie_plytki.png     zdjęcie badanej płytki (widok z góry)
   lista_elementow.json   mapa elementów, igieł i pozycji (x, y)
+  requirements.txt       lista wymaganych bibliotek Pythona
   URUCHOM_WINDOWS.bat    aktywator dla Windows
   URUCHOM.sh             aktywator dla macOS i Linuksa
   PRZECZYTAJ.txt         ten plik
@@ -56,7 +57,7 @@ Wszystkie główne przyciski są na GÓRNYM PASKU:
       (np. bez U1), kliknij ten przycisk raz, aby go odświeżyć
 
 2. Kliknij [▶ Testuj płytkę]
-   -> przelatuje animacja skanu, wynik w tabeli i na zdjęciu (PASS)
+   -> wynik pojawia się w tabeli i na zdjęciu płytki (PASS)
 
 3. Na górnym pasku zmień [SYMULACJA] np. na "odwrocona_dioda"
    albo "zwarcie" i znów kliknij [▶ Testuj płytkę]
@@ -64,13 +65,13 @@ Wszystkie główne przyciski są na GÓRNYM PASKU:
       pasek historii (#1, #2, #3...)
 
 4. Dodatkowe funkcje w oknie:
-   - kółko myszy na płytce = zoom
-   - przeciągnięcie myszką = przesuwanie płytki
+   - kółko myszy na płytce = zoom, przeciągnięcie = przesuwanie
    - pionowy suwak między panelami = szerokość tabeli
-   - [A− / A+] = wielkość tekstu w tabeli
-   - [⛶ Pełny] = tabela na cały ekran
+   - [A− / A+] = wielkość tekstu w tabeli, [⛶ Pełny] = tabela na cały ekran
+   - [⚙ Piny] = konfigurator pinów (klikasz na zdjęcie i zapisujesz mapę)
    - [⚙ Kalibruj] = tarowanie oporu kabli
      (na żywo: zdejmij płytkę, zewrzyj dwie igły przewodem)
+   - [SERIAL MONITOR] na dole = podgląd surowego USB (JSON) i wysyłanie komend
 
 
 ---------------------------------------------------------
@@ -78,12 +79,12 @@ Wszystkie główne przyciski są na GÓRNYM PASKU:
 ---------------------------------------------------------
 
 Na górnym pasku zmień [ŹRÓDŁO] z "DEMO (Symulator)"
-na port COM testera.
+na port COM testera (jeśli podpiąłeś kabel po starcie, kliknij [↻]).
 
-Tester powinien przyjmować komendę "SCAN\n" i zwracać JSON:
+Tester powinien przyjmować komendę "SCAN\n" (115200 baud) i zwracać JSON:
 
-  {"board_id": "test", "scan_ms": 380,
-   "readings": [{"a": 0, "b": 1, "mv": 410}, ...]}
+  {"board_id": "test", "scan_ms": 850,
+   "readings": [{"a": 0, "b": 1, "mv": 472}, ...]}
 
 
 ---------------------------------------------------------
@@ -99,33 +100,25 @@ Otwórz konsolę:
 
 WINDOWS:
 
-    cd %USERPROFILE%\Desktop\TesterPlytek
-    pip install customtkinter pillow pyserial
+    cd %USERPROFILE%\Downloads\TesterPlytek
+    pip install -r requirements.txt
     python testuj_plytke.py
 
   Jeśli "python" nie jest rozpoznawane:  py testuj_plytke.py
 
 macOS:
 
-    cd ~/Desktop/TesterPlytek
-    pip3 install customtkinter pillow pyserial
+    cd ~/Downloads/TesterPlytek
+    pip3 install -r requirements.txt
     python3 testuj_plytke.py
 
-  Jeśli dwuklik na URUCHOM.sh nic nie robi:
+LINUX (Fedora / Ubuntu / Debian):
 
-    cd ~/Desktop/TesterPlytek
-    bash URUCHOM.sh
-
-LINUX:
-
-    cd ~/Pulpit/TesterPlytek
-    pip3 install customtkinter pillow pyserial
+    # Fedora:  sudo dnf install python3-tkinter python3-pillow-tk
+    # Ubuntu:  sudo apt install python3-tk python3-pil.imagetk
+    cd ~/Downloads/TesterPlytek
+    pip3 install -r requirements.txt
     python3 testuj_plytke.py
-
-  Jeśli dwuklik otwiera plik w edytorze zamiast uruchamiać:
-
-    cd ~/Pulpit/TesterPlytek
-    bash URUCHOM.sh
 
 
 ---------------------------------------------------------
@@ -138,10 +131,8 @@ Aktywator nic nie robi po dwukliku (Windows)
          URUCHOM_WINDOWS.bat
 
 "ModuleNotFoundError: customtkinter"
-      -> nie zainstalowano bibliotek. Aktywator robi to sam,
-         ale ręcznie wpisz:
-         pip install customtkinter pillow pyserial
-         (na macOS/Linux: pip3 install customtkinter pillow pyserial)
+      -> wpisz: pip install -r requirements.txt
+         (na macOS/Linux: pip3 install -r requirements.txt)
 
 "python nie jest rozpoznawane"
       -> wpisz  py testuj_plytke.py   (Windows)
@@ -149,23 +140,25 @@ Aktywator nic nie robi po dwukliku (Windows)
       -> albo zainstaluj Pythona z python.org, zaznaczając
          "Add Python to PATH" podczas instalacji
 
-Okno się nie otwiera na Linuksie
-      -> sudo apt install python3-tk
+Błąd "No module named ImageTk" na Linuksie
+      -> Fedora: sudo dnf install python3-tkinter python3-pillow-tk
+      -> Ubuntu/Debian: sudo apt install python3-tk python3-pil.imagetk
 
 "BRAKUJE PLIKÓW" w konsoli
       -> zdjecie_plytki.png i lista_elementow.json muszą leżeć
          w tym samym folderze co testuj_plytke.py
 
-Tabela pusta / "BRAK DANYCH" przy każdym elemencie
-      -> kliknij [★ Zapisz wzorzec] — wzorzec nie został jeszcze
-         zapisany albo pochodzi ze starszej listy elementów
-
 "Stary plik wzorzec.json nie pasuje..."
       -> lista elementów się zmieniła (np. doszedł U1).
          Kliknij raz [★ Zapisz wzorzec], potem testuj.
 
-Puste pliki o dziwnych nazwach (np. PROG_ZWARCIA_OHM, TOLERANCJA)
-      -> to pozostałość po wklejeniu fragmentu kodu z ">" do konsoli.
-         ">" tworzy plik o nazwie tego, co za nim. Można je usunąć.
+
+---------------------------------------------------------
+  UWAGA
+---------------------------------------------------------
+
+Domyślnie program uruchamia się w trybie DEMO (dane symulowane).
+Gdy podepniesz prawdziwy tester z ESP32, niczego nie trzeba zmieniać
+w kodzie — po prostu zmień [ŹRÓDŁO] na górze z DEMO na port COM.
 
 =========================================================
