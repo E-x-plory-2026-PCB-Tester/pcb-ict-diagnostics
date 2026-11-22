@@ -29,7 +29,7 @@
 | Component | Role | Repository / Hardware |
 | :--- | :--- | :--- |
 | **PC Diagnostics & GUI** | Golden Sample comparison, PCB fault overlay, USB Serial Monitor, pin configurator, CSV export | **This repository** |
-| **3D Jig & Pin Map Generator** | Generates 3D-printable pogo-pin cassettes (`.stl`), `wiring_guide.txt`, and `lista_elementow.json` from Gerber/Excellon files | [Btema2/ict-jig-gen](https://github.com/Btema2/ict-jig-gen) |
+| **3D Jig & Pin Map Generator** | Generates 3D-printable pogo-pin cassettes (`.stl`), `wiring_guide.txt`, and `lista_elementow.json` from Gerber/Excellon files | [E-x-plory-2026-PCB-Tester/ict-jig-gen](https://github.com/E-x-plory-2026-PCB-Tester/ict-jig-gen) |
 | **Base Hardware & Firmware** | `ESP32` + `2× CD74HC4067` multiplexers wired in parallel to `16` shared pogo-pins (`P75-B1`) | Custom base station |
 
 ---
