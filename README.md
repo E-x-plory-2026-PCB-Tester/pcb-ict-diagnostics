@@ -2,21 +2,23 @@
 
 # ICT-SCAN PRO
 
-**PC Diagnostic & Optical Inspection Software for a Low-Cost In-Circuit PCB Tester**
+**PC Diagnostic & Optical Inspection Software for the E(x)plory 2026 PCB Tester**
 
 ![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white)
 ![GUI](https://img.shields.io/badge/GUI-CustomTkinter-0EA5E9?style=flat-square)
-![Hardware](https://img.shields.io/badge/MCU-ESP32-E7352C?style=flat-square&logo=espressif&logoColor=white)
+![MCU](https://img.shields.io/badge/MCU-ESP32-E7352C?style=flat-square&logo=espressif&logoColor=white)
 ![Protocol](https://img.shields.io/badge/USB-JSON%20115200-10B981?style=flat-square)
-![Competition](https://img.shields.io/badge/Project-E(x)plory-F59E0B?style=flat-square)
+![License](https://img.shields.io/badge/License-MIT-94A3B8?style=flat-square)
 
 **🇬🇧 English** | [🇵🇱 Polski](README.pl.md)
+
+Part of **[E(x)plory 2026 PCB Tester](https://github.com/E-x-plory-2026-PCB-Tester)**  •  Related: [`ict-firmware`](https://github.com/E-x-plory-2026-PCB-Tester/ict-firmware) · [`ict-jig-gen`](https://github.com/E-x-plory-2026-PCB-Tester/ict-jig-gen)
 
 </div>
 
 ---
 
-**ICT-SCAN PRO** is the desktop diagnostic application for an open, low-cost In-Circuit Test (ICT) station built for school electronics labs, student clubs, and small-batch prototyping. Using **Golden Sample signature matching**, it detects assembly faults in ~1 second with safe microcurrents (`< 1 mA`) **before main power is ever applied**.
+**ICT-SCAN PRO** is the desktop diagnostic application for a low-cost In-Circuit Test (ICT) station. Using **Golden Sample signature matching**, it compares soldered PCBs against a known-good reference with safe microcurrents (`< 1 mA`) **before main power is ever applied**.
 
 ![ICT-SCAN PRO Preview](podglad.png)
 
@@ -24,29 +26,13 @@
 
 ---
 
-## Project Ecosystem
-
-| Component | Role | Repository / Hardware |
-| :--- | :--- | :--- |
-| **PC Diagnostics & GUI** | Golden Sample comparison, PCB fault overlay, USB Serial Monitor, pin configurator, CSV export | **This repository** |
-| **3D Jig & Pin Map Generator** | Generates 3D-printable pogo-pin cassettes (`.stl`), `wiring_guide.txt`, and `lista_elementow.json` from Gerber/Excellon files | [E-x-plory-2026-PCB-Tester/ict-jig-gen](https://github.com/E-x-plory-2026-PCB-Tester/ict-jig-gen) |
-| **Base Hardware & Firmware** | `ESP32` + `2× CD74HC4067` multiplexers wired in parallel to `16` shared pogo-pins (`P75-B1`) | Custom base station |
-
----
-
 ## How It Works
 
-Instead of measuring isolated components (which fails in-circuit due to parallel current paths across the PCB), the tester scans pairs of pogo-pins in **both directions (`a→b` and `b→a`)** via a `3.3 V` voltage divider (`R_ref = 3.3 kΩ`, max short-circuit current `< 1 mA`):
+Instead of measuring isolated components (which fails in-circuit due to parallel current paths across the PCB), the software evaluates bidirectional scans (`a→b` and `b→a`) across `16` shared pogo-pins (`3.3 V`, `R_ref = 3.3 kΩ`, max short current `< 1 mA`):
 
-```text
-3.3 V ──[ R_ref 3.3 kΩ ]──┬──[ MUX A ]──► Pin A ──[ DUT on PCB ]── Pin B ──[ MUX B ]── GND
-                          │
-                     ESP32 ADC (mV)
-```
-
-1. **Calibrate (`⚙ Kalibruj`):** Measures internal multiplexer + cable resistance (`R_cal`) across a shorted jumper pair and subtracts it like a scale tare.
-2. **Record Golden Sample (`★ Zapisz wzorzec`):** Captures the reference signature of one verified working board into `wzorzec.json`.
-3. **Test Boards (`▶ Testuj płytkę`):** Compares incoming scans against `wzorzec.json` within a `±10%` tolerance and highlights faults directly on the PCB top-view image.
+1. **Calibrate (`⚙ Kalibruj`):** Measures multiplexer and cable resistance (`R_cal`) across a shorted jumper pair and subtracts it like a scale tare.
+2. **Record Golden Sample (`★ Zapisz wzorzec`):** Saves the reference signature of one verified working board into `wzorzec.json` (auto-loaded on next startup).
+3. **Test Boards (`▶ Testuj płytkę`):** Compares each board against `wzorzec.json` (`±10%` tolerance) and overlays faults directly onto the top-view PCB image.
 
 ### Fault Classification
 
@@ -67,7 +53,7 @@ Instead of measuring isolated components (which fails in-circuit due to parallel
 * **Built-in USB Serial Monitor:** Non-blocking JSON-lines receiver (`115200` baud, `4.5 s` timeout) with live `RX/TX` console, raw JSON toggle, manual command input (`SCAN`, `PING`), and COM port refresh (`↻`).
 * **Interactive Pin Mapper (`⚙ Piny`):** Click directly on the PCB image to assign `(x, y)` coordinates, needle indices `0–15`, and element type (`element` / `linia`) into `lista_elementow.json`.
 * **Zoom & Pan PCB Viewport:** Mouse-wheel zoom (`55%–200%`), drag-to-pan, resizable split panel, table font scaling (`85%–130%`), and fullscreen table mode (`⛶ Pełny`).
-* **Session History & CSV Export:** Clickable history pills for the last 10 scans and automatic semicolon-delimited logging to `pomiary_raport.csv` (Polish Excel compatible).
+* **Session History & CSV Export:** Clickable history pills for the last 10 scans and automatic semicolon-delimited logging to `pomiary_raport.csv`.
 * **Offline Demo Mode:** Built-in board simulator (`dobra płytka`, `zwarcie`, `zly_rezystor`, `odwrocona_dioda`, `przerwa`) for testing without hardware.
 
 ---
@@ -93,7 +79,7 @@ python3 testuj_plytke.py
 
 ---
 
-## USB Serial Protocol & Configuration
+## USB Serial Protocol & Pin Map Format
 
 When `SCAN\n` is sent over USB (`115200` baud), the microcontroller responds with a single JSON line:
 ```json
@@ -107,7 +93,7 @@ When `SCAN\n` is sent over USB (`115200` baud), the microcontroller responds wit
 }
 ```
 
-Pin mapping schema (`lista_elementow.json`, also auto-generated by `ict-jig-gen`):
+Pin mapping schema (`lista_elementow.json`, also generated by `ict-jig-gen`):
 ```json
 {
   "elementy": [
@@ -126,4 +112,4 @@ Pin mapping schema (`lista_elementow.json`, also auto-generated by `ict-jig-gen`
 | `zdjecie_plytki.png` | Top-view PCB image for visual fault overlay |
 | `requirements.txt` | Python dependencies (`customtkinter`, `pillow`, `pyserial`) |
 | `URUCHOM_WINDOWS.bat` / `URUCHOM.sh` | One-click launcher scripts |
-| `PRZECZYTAJ.txt` | Quick Polish user guide |
+| `PRZECZYTAJ.txt` | Quick Polish user guide for ZIP downloads |
