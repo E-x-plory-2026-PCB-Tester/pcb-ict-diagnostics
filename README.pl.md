@@ -2,48 +2,34 @@
 
 # ICT-SCAN PRO
 
-**Aplikacja Diagnostyczna i Optyczny Inspektor Błędów dla Niskokosztowego Testera Płytek PCB (ICT)**
+**Aplikacja Diagnostyczna i Optyczny Inspektor Błędów dla Testera PCB (E(x)plory 2026)**
 
 ![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white)
 ![GUI](https://img.shields.io/badge/GUI-CustomTkinter-0EA5E9?style=flat-square)
-![Hardware](https://img.shields.io/badge/MCU-ESP32-E7352C?style=flat-square&logo=espressif&logoColor=white)
+![MCU](https://img.shields.io/badge/MCU-ESP32-E7352C?style=flat-square&logo=espressif&logoColor=white)
 ![Protocol](https://img.shields.io/badge/USB-JSON%20115200-10B981?style=flat-square)
-![Competition](https://img.shields.io/badge/Projekt-E(x)plory-F59E0B?style=flat-square)
+![License](https://img.shields.io/badge/License-MIT-94A3B8?style=flat-square)
 
 [🇬🇧 English](README.md) | **🇵🇱 Polski**
+
+Część projektu **[E(x)plory 2026 PCB Tester](https://github.com/E-x-plory-2026-PCB-Tester)**  •  Pozostałe moduły: [`ict-firmware`](https://github.com/E-x-plory-2026-PCB-Tester/ict-firmware) · [`ict-jig-gen`](https://github.com/E-x-plory-2026-PCB-Tester/ict-jig-gen)
 
 </div>
 
 ---
 
-**ICT-SCAN PRO** to aplikacja komputerowa do otwartej, niskokosztowej stacji diagnostycznej In-Circuit Test (ICT), stworzonej z myślą o szkolnych pracowniach elektronicznych, kołach naukowych i prototypowaniu małych serii. Dzięki metodzie porównawczej **Golden Sample** system wykrywa błędy montażowe w ok. 1 sekundę bezpiecznym mikroprądem (`< 1 mA`), **zanim do płytki zostanie podłączone główne zasilanie**.
+**ICT-SCAN PRO** to aplikacja komputerowa do niskokosztowej stacji diagnostycznej In-Circuit Test (ICT). Dzięki metodzie porównawczej **Golden Sample** wykrywa błędy montażowe na zlutowanych płytkach bezpiecznym mikroprądem (`< 1 mA`), **zanim zostanie podłączone główne zasilanie**.
 
 ![Podgląd aplikacji ICT-SCAN PRO](podglad.png)
 
 ---
 
-## Ekosystem projektu
-
-| Moduł | Rola w systemie | Repozytorium / Sprzęt |
-| :--- | :--- | :--- |
-| **Aplikacja diagnostyczna PC** | Porównanie *Golden Sample*, wizualna mapa błędów na PCB, Serial Monitor USB, konfigurator pinów, eksport CSV | **To repozytorium** |
-| **Generator kaset 3D i mapy pinów** | Generuje kasety pod igły do druku 3D (`.stl`), `wiring_guide.txt` oraz `lista_elementow.json` z plików Gerber/Excellon | [Btema2/ict-jig-gen](https://github.com/Btema2/ict-jig-gen) |
-| **Stacja bazowa i firmware** | `ESP32` + `2× CD74HC4067` spięte równolegle do `16` wspólnych igieł sprężynowych (`P75-B1`) | Własna płyta bazowa |
-
----
-
 ## Zasada działania
 
-Zamiast mierzyć pojedyncze elementy w izolacji (co na zlutowanej płytce nie działa przez rozpływ prądu po równoległych ścieżkach), tester bada pary igieł **w obu kierunkach (`a→b` oraz `b→a`)** przez dzielnik `3,3 V` (`R_ref = 3,3 kΩ`, maksymalny prąd zwarcia `< 1 mA`):
+Zamiast mierzyć pojedyncze elementy w izolacji (co na zlutowanej płytce nie działa przez rozpływ prądu po równoległych ścieżkach), program analizuje dwukierunkowe skany (`a→b` oraz `b→a`) na `16` wspólnych igłach (`3,3 V`, `R_ref = 3,3 kΩ`, prąd zwarcia `< 1 mA`):
 
-```text
-3,3 V ──[ R_ref 3,3 kΩ ]──┬──[ MUX A ]──► Igła A ──[ Układ na PCB ]── Igła B ──[ MUX B ]── GND
-                          │
-                     ESP32 ADC (mV)
-```
-
-1. **Kalibracja (`⚙ Kalibruj`):** Mierzy opór własny kabli i multiplekserów (`R_cal`) na zwartej parze igieł i odejmuje go programowo (jak tarowanie wagi).
-2. **Zapis wzorca (`★ Zapisz wzorzec`):** Zapisuje „odcisk palca” jednej sprawnej płytki wzorcowej do `wzorzec.json`.
+1. **Kalibracja (`⚙ Kalibruj`):** Mierzy opór własny kabli i multiplekserów (`R_cal`) na zwartej parze igieł i odejmuje go jak tarowanie wagi.
+2. **Zapis wzorca (`★ Zapisz wzorzec`):** Zapisuje sygnaturę jednej sprawnej płytki do `wzorzec.json` (wczytuje się automatycznie po starcie).
 3. **Test płytek (`▶ Testuj płytkę`):** Porównuje kolejne płytki ze wzorcem w tolerancji `±10%` i nanosi wyniki bezpośrednio na zdjęcie PCB.
 
 ### Klasyfikacja wyników
@@ -105,7 +91,7 @@ Po wysłaniu komendy `SCAN\n` przez USB (`115200` baud) mikrokontroler zwraca je
 }
 ```
 
-Format pliku `lista_elementow.json` (kompatybilny z generatorem `ict-jig-gen`):
+Format pliku `lista_elementow.json` (generowany też automatycznie przez `ict-jig-gen`):
 ```json
 {
   "elementy": [
@@ -124,4 +110,4 @@ Format pliku `lista_elementow.json` (kompatybilny z generatorem `ict-jig-gen`):
 | `zdjecie_plytki.png` | Zdjęcie płytki z góry pod mapę błędów |
 | `requirements.txt` | Zależności Pythona (`customtkinter`, `pillow`, `pyserial`) |
 | `URUCHOM_WINDOWS.bat` / `URUCHOM.sh` | Skrypty startowe |
-| `PRZECZYTAJ.txt` | Krótka instrukcja obsługi po polsku |
+| `PRZECZYTAJ.txt` | Krótka instrukcja obsługi dla paczek ZIP |
