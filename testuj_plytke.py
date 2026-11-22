@@ -1,3 +1,8 @@
+"""
+testuj_plytke.py  —  ICT-SCAN PRO (Serial Monitor JSON + Konfigurator Pinów + Zoom/Pan PCB)
+
+"""
+
 import csv
 import datetime
 import json
@@ -842,6 +847,7 @@ class Aplikacja(ctk.CTk):
         self.tabela = ctk.CTkScrollableFrame(karta_tab, fg_color="transparent")
         self.tabela.pack(fill="both", expand=True, padx=6, pady=(0, 8))
 
+        # --- SERIAL MONITOR & DZIENNIK ZDARZEŃ (cmd_bar przed self.log, żeby nigdy nie zniknął) ---
         karta_log = ctk.CTkFrame(self.prawa, height=168, fg_color="#090C11", corner_radius=10,
                                  border_width=1, border_color=BORDER)
         karta_log.pack(fill="x")
@@ -860,12 +866,9 @@ class Aplikacja(ctk.CTk):
                         checkbox_width=14, checkbox_height=14, border_width=1,
                         text_color=TEXT_SUB, font=ctk.CTkFont("Segoe UI", 10)).pack(side="right")
 
-        self.log = ctk.CTkTextbox(karta_log, fg_color="transparent", text_color=TEXT_SUB,
-                                  wrap="word", font=ctk.CTkFont("Consolas", 11))
-        self.log.pack(fill="both", expand=True, padx=8, pady=(0, 4))
-
         cmd_bar = ctk.CTkFrame(karta_log, fg_color="transparent", height=28)
-        cmd_bar.pack(fill="x", padx=10, pady=(0, 8))
+        cmd_bar.pack(side="bottom", fill="x", padx=10, pady=(0, 8))
+        cmd_bar.pack_propagate(False)
         self.ent_cmd = ctk.CTkEntry(cmd_bar, height=26, fg_color=BG_CARD, border_color=BORDER,
                                     font=ctk.CTkFont("Consolas", 11),
                                     placeholder_text="Wyślij komendę przez Serial Monitor (np. SCAN, PING)...")
@@ -874,6 +877,10 @@ class Aplikacja(ctk.CTk):
         ctk.CTkButton(cmd_bar, text="Wyślij", width=68, height=26, fg_color="#1E293B", hover_color="#334155",
                       font=ctk.CTkFont("Segoe UI", 11, "bold"),
                       command=self._wyslij_komende_serial).pack(side="right")
+
+        self.log = ctk.CTkTextbox(karta_log, height=80, fg_color="transparent", text_color=TEXT_SUB,
+                                  wrap="word", font=ctk.CTkFont("Consolas", 11))
+        self.log.pack(fill="both", expand=True, padx=8, pady=(0, 4))
 
     def _dodaj_kpi(self, parent, tytul, wartosc, kolor, ostatni=False):
         karta = ctk.CTkFrame(parent, fg_color=BG_CARD, corner_radius=10,
